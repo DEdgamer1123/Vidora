@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Vidora</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── MODO OSCURO (default) ── */
+:root {
+  --accent:     #7c3aed;
+  --accent2:    #4338ca;
+  --accent-hov: #6d28d9;
+  --card-bg:    rgba(13, 11, 38, 0.72);
+  --card-bdr:   rgba(80, 60, 160, 0.45);
+  --entry-bg:   rgba(10, 8, 30, 0.80);
+  --entry-bdr:  rgba(70, 55, 140, 0.60);
+  --entry-fg:   #e8e0ff;
+  --entry-ph:   #5a5490;
+  --text:       #f0eeff;
+  --text2:      #9988cc;
+  --sec-lbl:    rgba(200,180,255,0.60);
+  --bar-bg:     rgba(30,25,80,0.70);
+  --green:      #4ecca3;
+  --red:        #ff5f7e;
+  --yellow:     #ffd97d;
+  --body-bg:    #07061a;
+  --tb-text:    rgba(255,255,255,0.75);
+  --wc-color:   rgba(255,255,255,0.70);
+}
+
+/* ── MODO CLARO ── */
+body.light {
+  --accent:     #6d28d9;
+  --accent2:    #4338ca;
+  --accent-hov: #5b21b6;
+  --card-bg:    rgba(255, 255, 255, 0.72);
+  --card-bdr:   rgba(140, 110, 220, 0.30);
+  --entry-bg:   rgba(248, 245, 255, 0.90);
+  --entry-bdr:  rgba(160, 130, 230, 0.40);
+  --entry-fg:   #1a0a3a;
+  --entry-ph:   #9988bb;
+  --text:       #1a0a3a;
+  --text2:      #5544aa;
+  --sec-lbl:    rgba(80,50,160,0.65);
+  --bar-bg:     rgba(200,185,240,0.60);
+  --green:      #00875a;
+  --red:        #c8002a;
+  --yellow:     #7a5000;
+  --body-bg:    #f5f0ff;
+  --tb-text:    rgba(30,10,80,0.80);
+  --wc-color:   rgba(30,10,80,0.65);
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--body-bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  user-select: none;
+  transition: background .3s;
+}
+
+/* ══ CANVAS DE FONDO GLOBAL ══════════════════════════════════════ */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ══ APP SOBRE EL CANVAS ════════════════════════════════════════ */
+#app {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ══ TITLEBAR CUSTOM ════════════════════════════════════════════ */
+#titlebar {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  flex-shrink: 0;
+  -webkit-app-region: drag;  /* arrastreable */
+  padding: 0 12px;
+}
+
+#titlebar-icon {
+  width: 16px; height: 16px;
+  margin-right: 7px;
+  -webkit-app-region: no-drag;
+}
+
+#titlebar-icon img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+}
+
+#titlebar-title {
+  font-size: 12px;
+  color: var(--tb-text);
+  flex: 1;
+}
+
+#win-controls {
+  display: flex;
+  gap: 0;
+  -webkit-app-region: no-drag;
+  margin-right: -12px;
+}
+
+.wc-btn {
+  width: 46px; height: 32px;
+  background: transparent;
+  border: none;
+  color: var(--wc-color);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .12s, color .12s;
+}
+.wc-btn:hover           { background: rgba(128,90,220,0.15); color: var(--accent); }
+.light .wc-btn:hover  { background: rgba(0,0,0,0.07); color: var(--accent); }
+.wc-btn.close:hover     { background: #e81123; color: #fff; }
+.wc-btn svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+
+/* ══ TOPBAR (logo + título — sin fondo, sobre el canvas) ════════ */
+#topbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 10px 28px 18px;
+  gap: 18px;
+}
+
+#logo-wrap {
+  flex-shrink: 0;
+  width: 115px; height: 115px;
+}
+
+#logo-img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgba(140,90,255,0.7));
+}
+
+#logo-ph {
+  display: none;
+  width: 115px; height: 115px;
+  border-radius: 14px;
+  background: rgba(100,55,200,0.4);
+  align-items: center; justify-content: center;
+  font-size: 40px; font-weight: 900; color: #fff;
+}
+
+#title-block h1 {
+  font-size: 42px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -1px;
+  text-shadow: 0 0 40px rgba(180,120,255,0.80), 0 0 80px rgba(140,80,255,0.40), 0 2px 8px rgba(0,0,0,0.6);
+  line-height: 1;
+}
+.light #title-block h1 {
+  color: #1a0050;
+  text-shadow: 0 0 30px rgba(120,80,255,0.30), 0 1px 4px rgba(0,0,0,0.15);
+}
+.light #title-block p { color: #3a1a8a; text-shadow: none; }
+
+#title-block p {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ddd0ff;
+  margin-top: 8px;
+  text-shadow: 0 0 20px rgba(160,120,255,0.5);
+}
+
+/* ══ CONTENIDO ══════════════════════════════════════════════════ */
+#content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 28px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+#content::-webkit-scrollbar { width: 6px; }
+#content::-webkit-scrollbar-track { background: transparent; }
+#content::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.45); border-radius: 3px; }
+
+/* ══ ETIQUETA SECCIÓN ═══════════════════════════════════════════ */
+.sec-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  color: var(--sec-lbl);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* ══ CARD (glassmorphism) ════════════════════════════════════════ */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-bdr);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ══ FILAS ARCHIVO ══════════════════════════════════════════════ */
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+}
+.file-row + .file-row {
+  border-top: 1px solid var(--card-bdr);
+}
+
+.row-icon { flex-shrink: 0; color: var(--text2); display: flex; align-items: center; }
+.row-icon svg {
+  width: 18px; height: 18px;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.file-input {
+  flex: 1;
+  background: var(--entry-bg);
+  border: 1px solid var(--entry-bdr);
+  border-radius: 8px;
+  color: var(--entry-fg);
+  font-family: inherit;
+  font-size: 9.5pt;
+  padding: 9px 13px;
+  outline: none;
+  cursor: default;
+  transition: border-color .15s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.file-input::placeholder { color: var(--entry-ph); }
+.file-input:focus { border-color: var(--accent); }
+
+.btn-examine {
+  flex-shrink: 0;
+  background: var(--accent);
+  color: #fff; border: none;
+  border-radius: 8px;
+  font-family: inherit; font-size: 9.5pt; font-weight: 700;
+  padding: 9px 22px;
+  cursor: pointer;
+  transition: background .15s, transform .08s;
+  white-space: nowrap;
+}
+.btn-examine:hover  { background: var(--accent-hov); }
+.btn-examine:active { transform: scale(0.97); }
+
+/* ══ VELOCIDAD ══════════════════════════════════════════════════ */
+#speed-row {
+  display: flex; align-items: center;
+  padding: 15px 18px; gap: 0;
+}
+#speed-label {
+  font-size: 10.5pt; color: var(--text2);
+  margin-right: 22px; flex-shrink: 0;
+  font-weight: 500;
+}
+.worker-btns { display: flex; gap: 7px; }
+.wbtn {
+  width: 42px; height: 34px;
+  border: 1px solid var(--card-bdr);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text2);
+  font-family: inherit; font-size: 10pt; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+}
+.wbtn:hover  { background: rgba(124,58,237,0.30); color: #fff; border-color: var(--accent); }
+.wbtn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ══ BOTON PRINCIPAL ════════════════════════════════════════════ */
+#main-btn {
+  width: 100%; height: 50px;
+  border: none; border-radius: 12px;
+  background: linear-gradient(90deg, #7c3aed 0%, #4338ca 100%);
+  color: #fff;
+  font-family: inherit; font-size: 13pt; font-weight: 700;
+  cursor: pointer; margin-bottom: 16px;
+  box-shadow: 0 4px 28px rgba(124,58,237,0.50);
+  transition: filter .15s, transform .08s, box-shadow .15s;
+  letter-spacing: 0.3px;
+}
+#main-btn:hover:not(:disabled) {
+  filter: brightness(1.13);
+  box-shadow: 0 6px 36px rgba(124,58,237,0.70);
+}
+#main-btn:active:not(:disabled) { transform: scale(0.99); }
+#main-btn:disabled {
+  background: linear-gradient(90deg, #3a385e 0%, #2e2c50 100%);
+  box-shadow: none; cursor: not-allowed;
+}
+
+/* ══ PROGRESO ═══════════════════════════════════════════════════ */
+#progress-inner { padding: 13px 18px 15px; display: flex; flex-direction: column; gap: 10px; }
+#progress-row   { display: flex; justify-content: space-between; align-items: center; }
+#lbl-estado { font-size: 11pt; font-weight: 700; color: var(--text); }
+:root #lbl-estado { text-shadow: 0 0 12px rgba(200,180,255,0.4); }
+#lbl-pct    { font-size: 11pt; font-weight: 700; color: var(--accent); }
+#progress-track {
+  width: 100%; height: 8px;
+  background: var(--bar-bg); border-radius: 4px; overflow: hidden;
+}
+#progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #7c3aed 0%, #4338ca 100%);
+  border-radius: 4px; transition: width .25s ease;
+}
+
+/* ══ LOG ════════════════════════════════════════════════════════ */
+#log {
+  flex: 1; min-height: 110px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-bdr);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 8.5pt; color: var(--text);
+  overflow-y: auto; line-height: 1.65;
+  word-break: break-all; white-space: pre-wrap;
+  backdrop-filter: blur(12px);
+}
+#log::-webkit-scrollbar       { width: 6px; }
+#log::-webkit-scrollbar-track { background: transparent; }
+#log::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.45); border-radius: 3px; }
+.log-ok    { color: #4ecca3; }
+.log-skip  { color: #ffd97d; }
+.log-error { color: #ff5f7e; }
+.log-info  { color: #9d7fff; }
+.log-done  { color: #4ecca3; font-weight: 700; }
+.light .log-ok    { color: #00875a; }
+.light .log-skip  { color: #7a5000; }
+.light .log-error { color: #c8002a; }
+.light .log-info  { color: #4422aa; }
+.light .log-done  { color: #00875a; }
+</style>
+</head>
+<body>
+
+<!-- CANVAS FONDO GLOBAL -->
+<canvas id="bg-canvas"></canvas>
+
+<div id="app">
+
+  <!-- TITLEBAR CUSTOM -->
+  <div id="titlebar">
+    <div id="titlebar-icon">
+      <img id="tb-icon" src="../resources/Logo_normal.ico" alt=""
+           onerror="this.style.display='none'">
+    </div>
+    <span id="titlebar-title">Vidora</span>
+    <div id="win-controls">
+      <button class="wc-btn" id="btn-min" title="Minimizar">
+        <svg viewBox="0 0 10 10"><line x1="0" y1="5" x2="10" y2="5"/></svg>
+      </button>
+      <button class="wc-btn" id="btn-max" title="Maximizar">
+        <svg viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" rx="1"/></svg>
+      </button>
+      <button class="wc-btn close" id="btn-close" title="Cerrar">
+        <svg viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10"/><line x1="10" y1="0" x2="0" y2="10"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- TOPBAR: logo + título (sin fondo, sobre canvas) -->
+  <div id="topbar">
+    <div id="logo-wrap">
+      <img id="logo-img" src="../resources/Logo_blanco.ico" alt=""
+           onerror="this.style.display='none';document.getElementById('logo-ph').style.display='flex'">
+      <div id="logo-ph">V</div>
+    </div>
+    <div id="title-block">
+      <h1>Vidora</h1>
+      <p>Descargador Inteligente de Videos</p>
+    </div>
+  </div>
+
+  <!-- CONTENIDO -->
+  <div id="content">
+
+    <div class="sec-label">ORIGEN DEL ARCHIVO</div>
+    <div class="card">
+      <div class="file-row">
+        <div class="row-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <input id="input-file" class="file-input" placeholder="Archivo Excel / CSV" readonly>
+        <button class="btn-examine" id="btn-file">Examinar</button>
+      </div>
+      <div class="file-row">
+        <div class="row-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <input id="input-dir" class="file-input" placeholder="Carpeta de destino" readonly>
+        <button class="btn-examine" id="btn-dir">Examinar</button>
+      </div>
+    </div>
+
+    <div class="sec-label">VELOCIDAD DE DESCARGA</div>
+    <div class="card">
+      <div id="speed-row">
+        <span id="speed-label">Conexiones simultaneas</span>
+        <div class="worker-btns" id="worker-btns">
+          <button class="wbtn" data-v="2">2</button>
+          <button class="wbtn" data-v="3">3</button>
+          <button class="wbtn active" data-v="5">5</button>
+          <button class="wbtn" data-v="8">8</button>
+          <button class="wbtn" data-v="10">10</button>
+        </div>
+      </div>
+    </div>
+
+    <button id="main-btn">Iniciar descarga</button>
+
+    <div class="sec-label">PROGRESO</div>
+    <div class="card">
+      <div id="progress-inner">
+        <div id="progress-row">
+          <span id="lbl-estado">Listo para comenzar</span>
+          <span id="lbl-pct">0%</span>
+        </div>
+        <div id="progress-track">
+          <div id="progress-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-label">REGISTRO DE ACTIVIDAD</div>
+    <div id="log"></div>
+
+  </div>
+</div>
+
+<script src="renderer.js"></script>
+</body>
+</html>

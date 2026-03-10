@@ -1,0 +1,48 @@
+{
+  "name": "vidora",
+  "version": "1.0.0",
+  "description": "Descargador Inteligente de Videos",
+  "author": "Vidora",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.vidora.app",
+    "productName": "Vidora",
+    "icon": "resources/Logo_normal.ico",
+    "win": {
+      "target": [
+        { "target": "nsis",     "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "resources/Logo_normal.ico",
+      "signingHashAlgorithms": null,
+      "sign": null
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "resources/Logo_normal.ico",
+      "installerHeaderIcon": "resources/Logo_normal.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "files": [
+      "src/**/*",
+      "resources/**/*",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      { "from": "resources/", "to": "resources/", "filter": ["**/*"] }
+    ]
+  }
+}
