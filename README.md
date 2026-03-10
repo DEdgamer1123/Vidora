@@ -9,6 +9,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-7c3aed)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows)](https://github.com/DEdgamer1123/Vidora/releases)
 
+### Descargar
+
+[![Instalador](https://img.shields.io/badge/⬇️_Instalador-Vidora_Setup_1.0.0.exe-7c3aed?style=for-the-badge)](https://github.com/DEdgamer1123/Vidora/releases/download/v1.0.0/Vidora.Setup.1.0.0.exe)
+[![Portable](https://img.shields.io/badge/⬇️_Portable-Vidora_1.0.0.exe-4338ca?style=for-the-badge)](https://github.com/DEdgamer1123/Vidora/releases/download/v1.0.0/Vidora.1.0.0.exe)
+
 </div>
 
 ---
@@ -50,12 +55,14 @@ El archivo debe tener al menos dos columnas:
 ## Instalacion
 
 ### Opcion 1 — Instalador (recomendado)
-1. Descarga `Vidora Setup 1.0.0.exe` desde [Releases](https://github.com/DEdgamer1123/Vidora/releases)
+1. Descarga el instalador:
+   - [⬇️ Vidora Setup 1.0.0.exe](https://github.com/DEdgamer1123/Vidora/releases/download/v1.0.0/Vidora.Setup.1.0.0.exe)
 2. Ejecuta el instalador
 3. Si Windows muestra advertencia de SmartScreen, haz clic en **"Mas informacion" → "Ejecutar de todos modos"**
 
 ### Opcion 2 — Portable
-1. Descarga `Vidora 1.0.0.exe` desde [Releases](https://github.com/DEdgamer1123/Vidora/releases)
+1. Descarga la version portable:
+   - [⬇️ Vidora 1.0.0.exe](https://github.com/DEdgamer1123/Vidora/releases/download/v1.0.0/Vidora.1.0.0.exe)
 2. Ejecuta directamente, sin instalacion
 
 ### Opcion 3 — Desde el codigo fuente
@@ -96,6 +103,8 @@ Vidora/
 │   ├── main.js              # Proceso principal de Electron (IPC, descargas)
 │   ├── preload.js           # Puente seguro entre main y renderer
 │   └── renderer.js          # Logica de UI, animaciones Canvas, eventos
+├── assets/
+│   └── Vidora.png           # Screenshot para el README
 ├── .gitignore
 ├── LICENSE
 ├── package.json
@@ -115,7 +124,6 @@ Vidora/
 | [xlsx](https://www.npmjs.com/package/xlsx) | Lectura de archivos Excel |
 | [electron-builder](https://www.electron.build) | Empaquetado y distribución |
 
-
 ---
 
 ## Licencia
@@ -125,5 +133,5 @@ Este proyecto esta bajo la licencia MIT. Puedes usar, modificar y distribuir el 
 ---
 
 <div align="center">
-Desarrollado por <a href="https://github.com/DEdgamer1123">DEdgamer1123</a>
+Desarrollado por <a href="https://github.com/DEdgamer1123/Vidora">DEdgamer1123</a>
 </div>
